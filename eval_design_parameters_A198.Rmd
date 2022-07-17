@@ -1,0 +1,230 @@
+---
+title: "Auswertung nach ATV-DVWK A 198 zur Ermittlung der Bemessungswerte"
+author: "Ahnert/Hurzlmeier"
+
+date: "erstellt `r format(Sys.time(), '%d.%m.%Y %H:%M')`"
+
+output:
+  word_document:
+    toc: yes
+    number_sections: yes
+    fig_cap: yes
+  '': default
+toc-title: "Inhalt"
+
+---
+```{r Revisionsverzeichnis, echo=FALSE}
+# ...
+```
+
+```{r toDo, echo=FALSE}
+# 
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(fig.width=17, fig.height=10) 
+
+options(scipen=999) # no scientific format for numbers
+```
+
+```{r library laden, include=FALSE}
+library(dplyr)
+library(caTools)
+library(flextable) 
+
+```
+
+```{r Workspace laden, include=FALSE}
+#load prepared data
+load("exampletime.RData")
+filetime <- file.info(filename2)
+```
+
+```{r Funktionen, echo=FALSE, include=FALSE}
+
+# function for running mean with certain number of samples
+mean2 <- function(x) if (sum(!is.na(x)) >= min_no) mean(x, na.rm = TRUE) else NA
+
+#parameters
+source("evaluation_parameter_A198.R", echo = FALSE)
+
+```
+
+```{r Einstellungen festlegen, echo=FALSE}
+
+# preparation of numbering of figures and tables
+nAbb=0
+nTab=0
+AbbTxt <-list()
+TabTxt <-list()
+
+#file name of script
+fname_script <- knitr::current_input()
+ftime_script <- file.info(fname_script)
+
+df_all <- df_btb_auswahl
+
+auswahl_bis <- max(df_all$Datum, na.rm=TRUE)
+auswahl_von <- min(df_all$Datum, na.rm=TRUE)
+
+# calc. of running mean
+
+df_all <- df_all %>% mutate(Q_T_d_mM_21dMin = runmean(Q_TW_21dMin, 30, endrule="NA"), .after = Q_TW_21dMin)
+
+```
+
+```{r fun für tab, echo=FALSE}  
+t.ref <- function(x) {
+  stringr::str_extract(TabTxt[x], "[^:]*")
+}
+```
+
+```{r fun für abb, echo=FALSE}
+f.ref <- function(x) {
+  stringr::str_extract(AbbTxt[x], "[^:]*")
+}
+```
+
+# Quellen
+Für die Auswertung wurden folgende Grundlagen verwendet:
+
+* Betriebstagebuch: `r filename2` mit Speicherstand `r format(filetime$mtime, '%d.%m.%Y %H:%M')`
+* Skriptdatei: `r fname_script` mit Speicherstand `r format(ftime_script$mtime, '%d.%m.%Y %H:%M')`
+
+# Festlegung der Auswertungszeiträume
+Für die nachfolgenden Berechnungen wurden folgende Perioden bzw. Zeitabschnitte festgelegt:
+
+Gesamtzeitraum: `r format(auswahl_von, '%d.%m.%Y')`-`r format(auswahl_bis, '%d.%m.%Y')`
+
+# Parameterwahl
+Folgende Festlegungen wurden für die Berechnungen nach A 198 verwendet:
+
+* Bemessungstemperatur `r format(Tbem,digits=3)` °C
+* angeschlossene Einwohner `r format(EW,digits=3)`
+* einwohnerspezifischer Wasserverbrauch q~s,EW~ = `r format(qS_EW,digits=3)` L/(EW*d)
+* gewerblicher und industrieller Jahresabwasseranfall Q~Ind~ = `r format(Q_Ind,digits=3)` m³/a
+* Mischwasserfaktor f~S,QM~ = `r format(f_S_QM,digits=3)`
+
+# Temperatur im Belebungsbecken
+Die Darstellung der Abwassertemperatur im Belebungsbecken im Betrachtungszeitraum erfolgt in Abbildung `r nAbb+1`. 
+```{r Temperaturen, echo=FALSE}
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Abwassertemperatur im Belebungsbecken"))
+
+plot(df_btb_auswahl$Datum,                                      # Draw plot without x-axis
+     df_btb_auswahl$T_BB,
+     type = "l",
+     xaxt = "n",xlab="Time",ylab="T_BB [°C]")
+lines(df_btb_auswahl$Datum,
+     df_btb_auswahl$T_BB_2WM,
+     type = "l",
+     col="red")
+axis(1,                                                   # Add dates to x-axis
+     df_btb_auswahl$Datum,
+     format(df_btb_auswahl$Datum, "%Y-%m-%d"))
+
+# Temperatur Extrema
+T_BB_2WM_min <- min(df_all$T_BB_2WM, na.rm=TRUE)
+T_BB_2WM_max <- max(df_all$T_BB_2WM, na.rm=TRUE)
+
+
+```
+
+`r AbbTxt[nAbb]` <!-- Beschriftung mit vorheriger Leerzeile erforderlich -->
+
+
+# Trockenwetterzuflussmengen
+
+```{r, echo=FALSE}
+tableauswahl <- des_stats %>% select(Beschreibung, Q_d, Q_TW_21dMin)
+
+# Auswahl aus Statistiktabelle
+Q_d_Konz = des_stats$Q_TW_21dMin[10]
+
+# Berechnung Q_M mit Vorgabeparametern
+Q_M = f_S_QM*Q_d_Konz+Q_F_mM_Wahl*86.4
+
+nTab <- nTab+1
+TabTxt <- append(TabTxt,paste0("Tabelle ",nTab,": statistische Auswertung der Durchflussmengen"))
+```
+
+In `r t.ref(nTab)` sind die statistischen Kenngrößen für den Durchluss dargestellt. Die Ermittlung der Trockenwettertage erfolgte mit der Methode des gleitenden 21-Tage-Minimums. Zur Berechnung der maßgebenden Konzentrationen wird das 85%-Perzentil des Trockenwetterzuflusses als Q~d.Konz~ = 
+`r format(Q_d_Konz,digits=1)` m³/d verwendet.
+
+`r TabTxt[nTab]` 
+
+```{r, echo=FALSE}
+dfEinheit <- c(" ", "m³/d", "m³/d")
+
+tableauswahl %>% flextable() %>% 
+  add_header_row(top=FALSE, dfEinheit) %>%                  
+  align(align = "right", part = "all")%>%                   
+  align(align = "left", j="Beschreibung", part = "all")%>%  
+  colformat_double(j="Q_d", digits=1) %>%                   
+  colformat_double(j="Q_TW_21dMin", digits=1) %>%           
+  colformat_double(i=1, digits=0) %>%                   
+  colformat_double(i=13:14, digits=3) %>%                   
+  autofit()                                                 
+
+```
+
+# Bemessungswerte
+
+```{r, echo=FALSE}
+tableauswahl <- des_stats %>% select(Beschreibung, Bd_CSB_ZB,Bd_KN_ZB,Bd_P_ZB)
+
+nTab <- nTab+1
+TabTxt <- append(TabTxt,paste0("Tabelle ",nTab,": statistische Auswertung der Zulauffrachten"))
+```
+
+Die Zulauffrachten sind in  `r t.ref(nTab)` statistisch ausgewertet.
+
+`r TabTxt[nTab]` 
+
+```{r, echo=FALSE}
+dfEinheit <- c(" ", "kg/d", "kg/d", "kg/d")
+
+tableauswahl %>% flextable() %>% 
+  add_header_row(top=FALSE, dfEinheit) %>%                  
+  align(align = "right", part = "all")%>%                   
+  align(align = "left", j="Beschreibung", part = "all")%>%  
+  colformat_double(j="Bd_CSB_ZB", digits=1) %>%                   
+  colformat_double(j="Bd_KN_ZB", digits=1) %>%           
+  colformat_double(j="Bd_P_ZB", digits=1) %>%           
+  colformat_double(i=1, digits=0) %>%                   
+  colformat_double(i=13:14, digits=3) %>%                   
+  autofit()                                                 
+
+Bd_CSB_85 = des_stats$Bd_CSB_ZB[10]
+Bd_KN_85 = des_stats$Bd_KN_ZB[10]
+Bd_P_85 = des_stats$Bd_P_ZB[10]
+C_CSB_Bem = Bd_CSB_85 / Q_d_Konz * 1000
+C_KN_Bem = Bd_KN_85 / Q_d_Konz * 1000
+C_P_Bem = Bd_P_85 / Q_d_Konz * 1000
+
+```
+
+
+Es ergeben sich folgende 85%-Perzentile der Frachten:
+
+* B~d,CSB~ = `r format(Bd_CSB_85,digits=1)` kg/d
+* B~d,KN~ = `r format(Bd_KN_85,digits=1)` kg/d
+* B~d,P~ = `r format(Bd_P_85,digits=2)` kg/d
+
+Daraus errechnen sich die folgenden Trockenwetterkonzentrationen:
+
+* C~CSB~ =`r format(C_CSB_Bem,digits=1)` mg/L
+* C~KN~ =`r format(C_KN_Bem,digits=1)` mg/L
+* C~P~ =`r format(C_P_Bem,digits=3)` mg/L
+
+Die maximale Mischwassermenge Q~M~ berechnet sich wie folgt:
+
+Q~M~ = f~S,QM~ * Q~S,aM~ + Q~F,aM~ = `r format(Q_M,digits=1)` m³/d.
+
+
+```{r}
+save.image(file="eval_results_A198.RData") #save results for further use
+```
+

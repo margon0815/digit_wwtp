@@ -1,0 +1,378 @@
+---
+title: "Plausibilitätsprüfung der Betriebsdaten"
+author: "Ahnert/Hurzlmeier"
+
+date: "erstellt `r format(Sys.time(), '%d.%m.%Y %H:%M')`"
+
+output:
+  word_document:
+    toc: yes
+    number_sections: yes
+    fig_cap: yes
+  '': default
+toc-title: "Inhalt"
+
+---
+```{r changes, echo=FALSE}
+# ...
+```
+
+```{r toDo, echo=FALSE}
+# ...
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r library laden, include=FALSE}
+
+library(dplyr)
+library(ggplot2)
+library(flextable) 
+
+```
+```{r Workspace laden, include=FALSE}
+load("example.RData")
+filetime <- file.info(filename2)
+```
+```{r Einstellungen festlegen, echo=FALSE}
+# preparation of figure and table numbers
+nAbb=0
+nTab=0
+AbbTxt <-list()
+TabTxt <-list()
+
+#filename of script
+fname_script <- knitr::current_input()
+ftime_script <- file.info(fname_script)
+```
+
+```{r fun für tab, echo=FALSE}  
+#function for referencing of tables
+t.ref <- function(x) {
+  stringr::str_extract(TabTxt[x], "[^:]*")
+}
+```
+
+```{r fun für abb, echo=FALSE}
+#function for referencing of figures
+f.ref <- function(x) {
+  stringr::str_extract(AbbTxt[x], "[^:]*")
+}
+```
+
+# Quellen
+Für das Betriebstagebuch wurden folgende Grundlagen verwendet:
+
+* Betriebstagebuch: `r filename2` mit Speicherstand `r format(filetime$mtime, '%d.%m.%Y %H:%M')`
+* Skriptdatei: `r fname_script` mit Speicherstand `r format(ftime_script$mtime, '%d.%m.%Y %H:%M')`
+
+# Zeitreihendarstellung der Messgrößen
+## Abflusswerte
+```{r plot Q_d, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+plot(df_btb_auswahl$Datum,                                      # Draw plot without x-axis
+     df_btb_auswahl$Q_d,
+     type = "l",
+     xaxt = "n",xlab="Time",ylab="Q_d [m³/d]")
+axis(1,                                                   # Add dates to x-axis
+     df_btb_auswahl$Datum,
+     format(df_btb_auswahl$Datum, "%Y-%m-%d"))
+
+#description of figure
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Täglicher Abfluss aller Tage Q_d [m³/d]"))
+```
+
+`r AbbTxt[nAbb]` <!-- leading blank line before figure description necessary -->
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+## Zulauftemperatur
+```{r plot T_BB, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+plot(df_btb_auswahl$Datum,                                      # Draw plot without x-axis
+     df_btb_auswahl$T_BB,
+     type = "l",
+     xaxt = "n",xlab="Time",ylab="T_BB [°C]")
+axis(1,                                                   # Add dates to x-axis
+     df_btb_auswahl$Datum,
+     format(df_btb_auswahl$Datum, "%Y-%m-%d"))
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Temperatur im Belebungsbecken [°C]"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+## Zulaufkonzentrationen
+
+```{r plot C_CSB_ZB, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+plot(df_btb_auswahl$Datum,                                      # Draw plot without x-axis
+     df_btb_auswahl$C_CSB_ZB,
+     type = "p",
+     xaxt = "n",xlab="Time",ylab="C_CSB_ZB [mg/L]")
+axis(1,                                                   # Add dates to x-axis
+     df_btb_auswahl$Datum,
+     format(df_btb_auswahl$Datum, "%Y-%m-%d"))
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": CSB-Zulaufkonzentration [mg/L]"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+```{r plot C_KN_ZB, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+plot(df_btb_auswahl$Datum,                                      # Draw plot without x-axis
+     df_btb_auswahl$C_KN_ZB,
+     type = "p",
+     xaxt = "n",xlab="Time",ylab="C_KN_ZB [mg/L]")
+axis(1,                                                   # Add dates to x-axis
+     df_btb_auswahl$Datum,
+     format(df_btb_auswahl$Datum, "%Y-%m-%d"))
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": KN-Zulaufkonzentration [mg/L]"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+```{r plot C_P_ZB, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+plot(df_btb_auswahl$Datum,                                      # Draw plot without x-axis
+     df_btb_auswahl$C_P_ZB,
+     type = "p",
+     xaxt = "n",xlab="Time",ylab="C_P_ZB [mg/L]")
+axis(1,                                                   # Add dates to x-axis
+     df_btb_auswahl$Datum,
+     format(df_btb_auswahl$Datum, "%Y-%m-%d"))
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": P-Zulaufkonzentration [mg/L]"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+## Scatterplots der Konzentrationen
+
+```{r plot scatter, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+par(mfrow = c(2, 2))
+
+plot(df_btb_auswahl$C_CSB_ZB,                                     
+     df_btb_auswahl$C_KN_ZB,
+     type = "p",
+     xlab="C_CSB_ZB [mg/L]",ylab="C_KN_ZB [mg/L]")
+
+plot(df_btb_auswahl$C_CSB_ZB,                                     
+     df_btb_auswahl$C_P_ZB,
+     type = "p",
+     xlab="C_CSB_ZB [mg/L]",ylab="C_P_ZB [mg/L]")
+
+plot(df_btb_auswahl$C_P_ZB,                                     
+     df_btb_auswahl$C_KN_ZB,
+     type = "p",
+     xlab="C_P_ZB [mg/L]",ylab="C_KN_ZB [mg/L]")
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Scatterplot aller Konzentrationen gegeneinander"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+## Scatterplots der Konzentrationen gegen den Durchfluss
+
+```{r plot scatter_Q, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+par(mfrow = c(2, 2))
+
+plot(df_btb_auswahl$Q_d,                                     
+     df_btb_auswahl$C_CSB_ZB,
+     type = "p",
+     xlab="Q_d [m³/d]",ylab="C_CSB_ZB [mg/L]")
+
+plot(df_btb_auswahl$Q_d,                                     
+     df_btb_auswahl$C_KN_ZB,
+     type = "p",
+     xlab="Q_d [m³/d]",ylab="C_KN_ZB [mg/L]")
+
+plot(df_btb_auswahl$Q_d,                                     
+     df_btb_auswahl$C_P_ZB,
+     type = "p",
+     xlab="Q_d [m³/d]",ylab="C_P_ZB [mg/L]")
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Scatterplot der  Konzentrationen gegen den Durchfluss"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+# Histogramme der Betriebsdaten
+
+```{r plot histo1, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+par(mfrow = c(1, 2))
+
+hist(df_btb_auswahl$Q_d,30,                                     
+     xlab="Q_d [m³/d]", main = "")
+
+hist(df_btb_auswahl$T_BB,20,                                     
+     xlab="T_BB [°C]", main = "")
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Histogramme von Durchfluss und Temperatur"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+```{r plot histo2, fig.width=16/2.54,fig.height=10/2.54, echo=FALSE, warning=FALSE}
+
+par(mfrow = c(2, 2))
+
+hist(df_btb_auswahl$C_CSB_ZB,20,                                     
+     xlab="C_CSB_ZB [mg/L]", main = "")
+
+hist(df_btb_auswahl$C_CSB_ZB,20,                                     
+     xlab="C_KN_ZB [mg/L]", main = "")
+
+hist(df_btb_auswahl$C_CSB_ZB,20,                                     
+     xlab="C_P_ZB [mg/L]", main = "")
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Histogramme der Zulaufkonzentrationen"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+# Descriptive Statistik
+
+```{r, echo=FALSE}
+# 2 R Chunks were needed for tables because print of description before table
+
+tableauswahl <- des_stats %>% select(Beschreibung, Q_d, T_BB,C_CSB_ZB, C_KN_ZB, C_P_ZB)
+
+nTab <- nTab+1
+TabTxt <- append(TabTxt,paste0("Tabelle ",nTab,": statistische Auswertung der Zulaufdaten Teil 1"))
+```
+
+Auch in `r t.ref(nTab)` ist dies zu sehen.
+
+`r TabTxt[nTab]` 
+
+
+```{r, echo=FALSE}
+# falls mehrere Kopfzeilen gewünscht sind für Einheiten:
+dfEinheit <- c(" ", "m^3/d",  "°C", "mg/L", "mg/L", "mg/L")
+
+tableauswahl %>% flextable() %>% 
+  add_header_row(top=FALSE, dfEinheit) %>%                  # for second header line
+  # table format
+  align(align = "right", part = "all")%>%                   # complete table
+  align(align = "left", j="Beschreibung", part = "all")%>%  # single columns
+  colformat_double(j="Q_d", digits=1) %>%                   # number of decimal places for column
+  colformat_double(j="T_BB", digits=1) %>%           
+  colformat_double(j="C_CSB_ZB", digits=1) %>%           
+  colformat_double(j="C_KN_ZB", digits=1) %>%           
+  colformat_double(j="C_P_ZB", digits=1) %>%           
+  colformat_double(i=1, digits=0) %>%                   # number of decimal places for line
+  colformat_double(i=13:14, digits=3) %>%                   # 
+  autofit()                                                 # automatic with
+
+```
+
+```{r, echo=FALSE}
+tableauswahl <- des_stats %>% select(Beschreibung, Bd_CSB_ZB,Bd_KN_ZB,Bd_P_ZB,C_KN_ZB_2_C_CSB_ZB, C_P_ZB_2_C_CSB_ZB)
+
+nTab <- nTab+1
+TabTxt <- append(TabTxt,paste0("Tabelle ",nTab,": statistische Auswertung der Zulaufdaten Teil 2"))
+```
+
+Auch in `r t.ref(nTab)` ist dies zu sehen.
+
+`r TabTxt[nTab]` 
+
+```{r, echo=FALSE}
+# falls mehrere Kopfzeilen gewünscht sind für Einheiten:
+dfEinheit <- c(" ", "kg/d", "kg/d", "kg/d","-","-")
+
+tableauswahl %>% flextable() %>% 
+  set_header_labels(values=list(Beschreibung="Descr.",Bd_CSB_ZB="Bd_CSB_ZB",Bd_KN_ZB="Bd_KN_ZB",Bd_P_ZB="Bd_P_ZB",C_KN_ZB_2_C_CSB_ZB="KN/CSB",C_P_ZB_2_C_CSB_ZB="P/CSB")) %>% 
+  add_header_row(top=FALSE, dfEinheit) %>%                  
+  align(align = "right", part = "all")%>%                   
+  align(align = "left", j="Beschreibung", part = "all")%>%  
+  colformat_double(j="Bd_CSB_ZB", digits=1) %>%                   
+  colformat_double(j="Bd_KN_ZB", digits=1) %>%           
+  colformat_double(j="Bd_P_ZB", digits=1) %>%           
+  colformat_double(j="C_KN_ZB_2_C_CSB_ZB", digits=3) %>%           
+  colformat_double(j="C_P_ZB_2_C_CSB_ZB", digits=3) %>%           
+  colformat_double(i=1, digits=0) %>%                   
+  colformat_double(i=13:14, digits=3) %>%                   
+  autofit()                                                 
+
+```
+
+# Prüfung der Besetzung der Wochentage
+## Probenahmetage im Zulauf Belebung
+### Zulauf Belebung Wochentag
+```{r plot VT_Woche_ZB, fig.width=15/2.54,fig.height=7/2.54, echo=FALSE, warning=FALSE}
+p <- DOW_ZB %>%
+  ggplot(aes(x=WT, y=Anzahl, fill=Parameter))    #data and x axis
+                       
+my_plot <- p + geom_bar(stat="identity", 
+                        position=position_dodge())+
+  labs(x="Wochentag", y="Anzahl Proben")+ #descr. of y axis
+  theme(panel.background =element_rect(fill="white", colour = "black"))+  
+  theme(panel.grid = element_line(colour = "gray",linetype = "dashed"))
+
+my_plot
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Probenverteilung über die Wochentage im Zulauf der Belebung"))
+```
+
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+### Zulauf Belebung Jahr
+```{r plot VT_Jahr_ZB, fig.width=15/2.54,fig.height=7/2.54, echo=FALSE, warning=FALSE}
+p <- DOY_ZB %>%
+  ggplot(aes(x=Jahr, y=Anzahl, fill=Parameter))    
+                       
+my_plot <- p + geom_bar(stat="identity", 
+                        position=position_dodge())+
+  labs(x="Jahr", y="Anzahl Proben")+ 
+  theme(panel.background =element_rect(fill="white", colour = "black"))+  
+  theme(panel.grid = element_line(colour = "gray",linetype = "dashed"))
+
+my_plot
+
+nAbb <- nAbb+1
+AbbTxt <- append(AbbTxt,paste0("Abbildung ",nAbb,": Probenverteilung über die Jahre im Zulauf der Belebung"))
+```
+`r AbbTxt[nAbb]` 
+
+Wie in `r f.ref(nAbb)` zu sehen, kann man daraus ableiten ...
+
+
+# Zusammenfassung
+Hier kann man etwas abschließendes einfügen.

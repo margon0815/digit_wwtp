@@ -1,0 +1,117 @@
+---
+title: "Bemessung einer Kläranlage nach DWA A 131"
+author: "Ahnert/Hurzlmeier"
+
+date: "erstellt `r format(Sys.time(), '%d.%m.%Y %H:%M')`"
+
+output:
+  word_document:
+    toc: yes
+    number_sections: yes
+    fig_cap: yes
+  '': default
+toc-title: "Inhalt"
+
+---
+```{r Revisionsverzeichnis, echo=FALSE}
+# ...
+```
+
+```{r toDo, echo=FALSE}
+# 
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(fig.width=17, fig.height=10) 
+
+options(scipen=999) # no scientific format for numbers
+```
+
+```{r library laden, include=FALSE}
+library(dplyr)
+library(caTools)
+library(flextable) 
+
+```
+
+```{r Workspace laden, include=FALSE}
+#load prepared data
+load("results_A131.RData")
+filetime <- file.info(filename2)
+```
+
+```{r Funktionen, echo=FALSE, include=FALSE}
+
+#parameters
+#source("design_parameters_A131.R", echo = FALSE)
+
+```
+
+```{r Einstellungen festlegen, echo=FALSE}
+
+# preparation of numbering of figures and tables
+nAbb=0
+nTab=0
+AbbTxt <-list()
+TabTxt <-list()
+
+#file name of script
+fname_script <- knitr::current_input()
+ftime_script <- file.info(fname_script)
+
+```
+
+```{r fun für tab, echo=FALSE}  
+t.ref <- function(x) {
+  stringr::str_extract(TabTxt[x], "[^:]*")
+}
+```
+
+```{r fun für abb, echo=FALSE}
+f.ref <- function(x) {
+  stringr::str_extract(AbbTxt[x], "[^:]*")
+}
+```
+
+# Parameterwahl
+Folgende Bemessungsgrößen wurden für die Berechnungen nach A 131 verwendet:
+
+* Bemessungstemperatur `r format(Tbem,digits=3)` °C
+
+Frachten:
+
+* B~d,CSB~ = `r format(Bd_CSB_85,digits=1)` kg/d
+* B~d,KN~ = `r format(Bd_KN_85,digits=1)` kg/d
+* B~d,P~ = `r format(Bd_P_85,digits=2)` kg/d
+
+Volumenströme:
+
+* Q~d,Konz~ = `r format(Q_d_Konz,digits=1)` m³/d
+* Q~M~ = `r format(Q_M,digits=1)` m³/d
+
+resultierende Trockenwetterkonzentrationen:
+
+* C~CSB~ =`r format(C_CSB_Bem,digits=1)` mg/L
+* C~KN~ =`r format(C_KN_Bem,digits=1)` mg/L
+* C~P~ =`r format(C_P_Bem,digits=3)` mg/L
+
+# Bemessung des Belebungsbeckens
+
+Bemessung als vorgeschaltete Denitrifikation
+
+* Schlammalter t~TS,Bem~ = `r format(t_TS_Bem,digits=1)` d
+* Verhältnis V~D~/V~BB~ = `r format(VH_VD_VBB,digits=3)`
+* V~BB~ = `r format(V_BB,digits=1)` m³
+* V~DN~ = `r format(V_D,digits=1)` m³
+* V~N~ = `r format(V_N,digits=1)` m³
+* RF = `r format(RF,digits=3)`
+
+# Bemessung des Nachklärbeckens
+
+* ISV = `r format(ISV,digits=1)` mL/g
+* TS~RS~ = `r format(TS_RS,digits=3)` g/L
+* TS~BB~ = `r format(TS_BB,digits=3)` g/L
+* h~ges~ = `r format(h_gesamt,digits=3)` m
+* A~NKB~ = `r format(A_NKB,digits=1)` m²
+
